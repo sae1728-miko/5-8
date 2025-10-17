@@ -7,9 +7,6 @@ $target = 1;
 $count = 0;
 $index = -1;
 
-$count = 0;
-$index = -1;
-
 foreach ($arr as $i => $value) {
     $count++;
     if ($value === $target) {
