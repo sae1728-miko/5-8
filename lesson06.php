@@ -1,5 +1,6 @@
 ﻿<?php
-function selectioonSort($arr) {
+
+function selectionSort($arr) {
     $n = count($arr);
     for ($i = 0; $i < $n - 1; $i++) {
         $minIndex = $i;
@@ -8,9 +9,7 @@ function selectioonSort($arr) {
                 $minIndex = $j;
             }
         }
-        $temp = $arr[$i];
-        $arr[$i] = $arr[$minIndex];
-        $arr[$minIndex] = $temp;
+        [$arr[$i], $arr[$minIndex]] = [$arr[$minIndex], $arr[$i]];
     }
     return $arr;
 }
@@ -30,75 +29,72 @@ function insertionSort($arr) {
 }
 
 function mergeSort($arr) {
-    if (count($arr) <= 1) {
-        return $arr;
-    }
+    if (count($arr) <= 1) return $arr;
+
     $mid = floor(count($arr) / 2);
-    $left = mergeSort(array_slice($arr, 0, $mid));
-    $right = mergeSort(array_slice($arr, $mid));
+    $left = array_slice($arr, 0, $mid);
+    $right = array_slice($arr, $mid);
+
+    $left = mergeSort($left);
+    $right = mergeSort($right);
+
     return merge($left, $right);
 }
 
 function merge($left, $right) {
     $result = [];
-    $i = $j = 0;
-    while ($i < count($left) && $j < count($right)) {
-        if ($left[$i] < $right[$j]) {
-            $result[] = $left[$i];
-            $i++;
+    while (count($left) > 0 && count($right) > 0) {
+        if ($left[0] <= $right[0]) {
+            $result[] = array_shift($left);
         } else {
-            $result[] = $right[$j];
-            $j++;
+            $result[] = array_shift($right);
         }
     }
-    return array_merge($result, array_slice($left, $i), array_slice($right, $j));
+    return array_merge($result, $left, $right);
 }
 
 function quickSort($arr) {
-    if (count($arr) < 2) {
-        return $arr;
-    }
-    $pivot = $arr[0];
+    if (count($arr) <= 1) return $arr;
+
+    $pivot = $arr[array_rand($arr)];
     $left = $right = [];
-    for ($i = 1; $i < count($arr); $i++) {
-        if ($arr[$i] < $pivot) {
-            $left[] = $arr[$i];
-        } else {
-            $right[] = $arr[$i];
+
+    foreach ($arr as $value) {
+        if ($value < $pivot) {
+            $left[] = $value;
+        } elseif ($value > $pivot) {
+            $right[] = $value;
         }
     }
-    return array_merge(quickSort($left), [$pivot], quickSort($right));
+
+    $equals = array_filter($arr, fn($v) => $v === $pivot);
+
+    return array_merge(quickSort($left), $equals, quickSort($right));
 }
 
-// ---------- メイン処理 ----------
-$data = [4, 5, 1, 3, 2, 9, 6, 8, 7];
+$arr = [4, 5, 1, 3, 2, 9, 6, 8, 7];
 
-// コマンドライン引数を取得
-if ($argc < 2) {
-    echo "使用方法: php lesson06.php [SELECT|INSERT|MERGE|QUICK]\n";
-    exit;
-}
-$method = strtoupper($argv[1]); // 入力を大文字に変換
+echo "ソート方法を入力してください（SELECT / INSERT / MERGE / QUICK）： ";
+$method = strtoupper(trim(fgets(STDIN)));
 
 switch ($method) {
     case "SELECT":
-        $sorted = selectionSort($data);
+        $sorted = selectionSort($arr);
         break;
     case "INSERT":
-        $sorted = insertionSort($data);
+        $sorted = insertionSort($arr);
         break;
     case "MERGE":
-        $sorted = mergeSort($data);
+        $sorted = mergeSort($arr);
         break;
     case "QUICK":
-        $sorted = quickSort($data);
+        $sorted = quickSort($arr);
         break;
     default:
-        echo "不明なソート方法です: $method\n";
+        echo "無効なソート方法です。\n";
         exit;
 }
 
-echo "元の配列: " . implode(", ", $data) . "\n";
-echo "ソート方法: $method\n";
 echo "ソート結果: " . implode(", ", $sorted) . "\n";
 ?>
+
